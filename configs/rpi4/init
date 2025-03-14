@@ -1,0 +1,41 @@
+#!/bin/sh
+# Init script for the initramfs, first step where we control
+# things in the RPi boot sequence.
+
+# Mount the various necessary filesystems
+mount -t devtmpfs -o rw none /dev
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+
+echo "Waiting for /dev/mmcblk0p2..." > /dev/kmsg
+until  [ -b "/dev/mmcblk0p2" ]; do
+  sleep 5
+done
+
+echo "Getting boot size..." > /dev/kmsg
+boot_size=$(lsblk -nb -o SIZE /dev/mmcblk0p1)
+echo "boot partition size: $boot_size" > /dev/kmsg
+
+echo "fscking /dev/mmcblk0p2..." > /dev/kmsg
+e2fsck -f -y /dev/mmcblk0p2
+echo "resize2fs down to 3G..." > /dev/kmsg
+resize2fs -f /dev/mmcblk0p2 3G
+echo "Resize status: $?" > /dev/kmsg
+end=$((boot_size + (3*1024*1024*1024)))
+echo "Shrinking partition 2 to 3G (end at $end)..." > /dev/kmsg
+parted /dev/mmcblk0 ---pretend-input-tty <<EOF
+resizepart
+2
+${end}B
+Yes
+quit
+EOF
+echo "Shrunk partition status: $?" > /dev/kmsg
+echo "Resizing partition to filesystem..." > /dev/kmsg
+resize2fs -f /dev/mmcblk0p2
+echo "Resize status: $?" > /dev/kmsg
+echo "fscking /dev/mmcblk0p2..." > /dev/kmsg
+e2fsck -f -y /dev/mmcblk0p2
+
+echo "Rebooting..." > /dev/kmsg
+exec reboot -f
