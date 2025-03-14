@@ -1,0 +1,32 @@
+cmdline=cmdline2.txt
+uart_2ndstage=1
+initramfs rootfs.cpio.gz
+kernel=nerves-kernel8.img
+dtoverlay=vc4-kms-v3d
+max_framebuffers=2
+arm_64bit=1
+
+# We always use the same names. The variant is selected in fwup.conf.
+start_file=start4.elf
+fixup_file=fixup4.dat
+
+# Disable the boot rainbow
+disable_splash=1
+
+# Enable I2C and SPI
+dtparam=i2c_arm=on
+dtparam=spi=on
+
+# Enable DRM VC4 V3D driver
+max_framebuffers=2
+
+# Don't have the firmware create an initial video= setting in cmdline.txt.
+# Use the kernel's default instead.
+disable_fw_kms_setup=1
+
+# Support USB gadget mode on the USB-C port
+dtoverlay=dwc2
+
+# Enable the UART (/dev/ttyS0)
+enable_uart=1
+
