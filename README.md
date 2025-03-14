@@ -11,6 +11,14 @@ This repo is built for a specific circumstance and needs adaptation to work in a
 - you like the size 3G (otherwise change the `init` file)
 - support for tryboot, should be on most current rpi4s, otherwise shouldn't do any damage
 
+It is easy to put Nerves on a device on your desk. If you have hundred of devices in awkward places in the
+realy world and you access them via a shell, then changing the file system is a big risk.
+The big point of this repo is to make it reasonably safe and reliable to migrate a device that is out in the
+field and needs space on the disk to make room for something like Nerves. So the device will restart twice
+during the procedure. During that there is a crucial moment of changing the disk. But generally you can add
+the files whenever you feel like it. You can pull the trigger at your leisure. It requires a special command
+so the files will be inert unless you decide to commit.
+
 ## Further requirements
 
 Requires a kernel file packaged up as `nerves-kernel8.img`, it needs to support initramfs block devices. So if you grab `nerves_system_rpi4` and at the time of writing you need `main` because `CONFIG_BLK_DEV_INITRD=y` was just added.
